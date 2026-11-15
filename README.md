@@ -8,7 +8,7 @@
 게임에 이미 있는 경기장 경기 이벤트를 가상 팀 리그의 한 시즌으로 묶고, 일정 · 순위 · 기록 · 포스트시즌까지 이어 갑니다.
 
 ![Cities: Skylines](https://img.shields.io/badge/Cities%3A%20Skylines-1.21-1F6FEB?style=for-the-badge)
-![Version](https://img.shields.io/badge/판-0.1.0%20개발%20중-F2B33D?style=for-the-badge)
+![Version](https://img.shields.io/badge/판-1.0.0-3F9A52?style=for-the-badge)
 ![Status](https://img.shields.io/badge/상태-게임%20안%20확인%20전-8A4A00?style=for-the-badge)
 
 ![.NET Framework 3.5](https://img.shields.io/badge/.NET%20Framework-3.5-512BD4?style=flat-square&logo=dotnet&logoColor=white)
