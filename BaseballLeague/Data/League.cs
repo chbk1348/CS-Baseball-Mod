@@ -408,8 +408,8 @@ namespace BaseballLeague.Data
             return res;
         }
 
-        /// <summary>이벤트가 맞출 홈 경기(결과 · 승률 조정 · 확장점이 함께 씀): day(이벤트 시작 게임 날짜) 또는 그 다음 날의 안 한 내 도시 팀(0번) 홈 경기 중 가장 이른 것. 없으면 -1(결과를 버림).</summary>
-        public static int HomeTarget(Season s, DateTime day)
+        /// <summary>이벤트가 맞출 홈 경기(결과 · 승률 조정 · 확장점이 함께 씀): day(이벤트 시작 게임 날짜) 또는 그 다음 날의 안 한 내 도시 팀(0번) 홈 경기 중 가장 이른 것. 없으면 -1(결과를 버림). played = 이미 정한 경기도 봄(끝난 이벤트가 맞춘 경기 찾기).</summary>
+        public static int HomeTarget(Season s, DateTime day, bool played = false)
         {
             day = day.Date;
             var last = day.AddDays(HomeTargetDays);
@@ -417,10 +417,20 @@ namespace BaseballLeague.Data
             for (int i = 0; i < s.Games.Count; i++)
             {
                 var g = s.Games[i];
-                if (g.Home != 0 || g.Played || g.Day < day || g.Day > last) continue;
+                if (g.Home != 0 || g.Played && !played || g.Day < day || g.Day > last) continue;
                 if (best < 0 || g.Day < s.Games[best].Day) best = i;
             }
             return best;
+        }
+
+        /// <summary>
+        /// 경기장 정보 창에 보일 이벤트 상대(팀 번호 · 없으면 -1 → 게임 이름 그대로): 안 끝난 이벤트는 결과를 넣을 홈 경기(HomeTarget), 끝난 이벤트는 그날 · 다음 날 홈 경기 중 가장 이른 것(이미 정했어도).
+        /// shortcut: 끝난 이벤트는 그날 경기가 이벤트보다 먼저 정해졌으면(이벤트가 다음 날 경기에 맞춤) · 더블헤더면 다른 경기를 볼 수 있음, 맞춘 경기를 박스에 남기게 되면 그걸로.
+        /// </summary>
+        public static int EventOpponent(Season s, DateTime day, bool ended)
+        {
+            int i = HomeTarget(s, day, ended);
+            return i < 0 ? -1 : s.Games[i].Away;
         }
 
         /// <summary>이벤트 시작일 뒤 며칠까지의 홈 경기에 맞추나(그 뒤 경기는 그날 모드가 정함).</summary>
@@ -950,6 +960,10 @@ namespace BaseballLeague.Data
             check(HomeTarget(s, d.AddDays(2).AddHours(15)) == 1, "이벤트: 같은 날 홈 경기(시각 무시)");
             check(HomeTarget(s, d.AddDays(3)) == -1, "이벤트: 끝난 경기에 맞춤");
             check(HomeTarget(s, d.AddDays(-1)) == -1, "이벤트: 이틀 뒤 홈 경기에 맞춤");
+            check(EventOpponent(s, d, false) == 2 && EventOpponent(s, d.AddDays(1).AddHours(15), false) == 2, "다음 홈 경기 상대: 결과를 넣을 홈 경기 상대가 아님");
+            check(EventOpponent(s, d.AddDays(3), false) == -1 && EventOpponent(s, d.AddDays(3), true) == 4, "다음 홈 경기 상대: 끝난 이벤트가 정한 경기 상대를 못 찾음");
+            check(EventOpponent(s, d.AddDays(2), true) == 3, "다음 홈 경기 상대: 끝난 이벤트에 가장 이른 홈 경기가 아님");
+            check(EventOpponent(s, d.AddDays(-1), true) == -1 && EventOpponent(s, d.AddDays(5), false) == -1, "다음 홈 경기 상대: 원정 · 기간 밖 경기 상대를 씀");
             var old = Current;
             var oldDay = lastDay;
             Current = s;

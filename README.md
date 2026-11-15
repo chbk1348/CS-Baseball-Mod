@@ -84,6 +84,7 @@
 | 경기 결과 | `SportMatchAI.EndEvent` 패치(Prefix · Postfix) — 홈구장 경기가 끝나면 `EventData.Flags` 의 `Success` · `Failure` 와 방문객 수를 읽어 홈 경기 결과로 넣음(대학 경기장은 `VarsitySportsMatchAI` 가 base 로 지남) |
 | 홈 팀 승률 조정 | `SportMatchAI.GetWinProbability` · `VarsitySportsMatchAI.GetWinProbability` (0 ~ 100) |
 | 대학 경기장 | `VarsitySportsArenaAI` (Campus) |
+| 경기장 정보 창 팀 이름 | `FootballPanel.RefreshMatchInfo` · `VarsitySportsArenaPanel.RefreshMatchInfo` 패치(Postfix) — 홈구장 창이면 게임이 `SportMatchAI.GetTeamName` · `GetOpponentName` 으로 채운 팀 이름 · 상대 · 지난 경기 툴팁 글과 팀 색만 리그 값으로 덮음(게임 값 · 세이브는 그대로) · 올림픽 모드가 붙인 경기(`OlympicGames.Logic.MatchDay.IsAttached`, 리플렉션)는 그대로 |
 | 게임 날짜 | `SimulationManager.m_currentGameTime` |
 | 경기장 상태 · 지금 입장 | `Building.m_problems` · 건물의 `CitizenUnit`(Visit) 방문 시민 수 |
 | 홈구장 카메라 이동 | `ToolsModifierControl.cameraController.SetTarget` |

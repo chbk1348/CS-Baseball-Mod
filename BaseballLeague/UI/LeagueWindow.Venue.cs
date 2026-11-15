@@ -127,7 +127,9 @@ namespace BaseballLeague.UI
                 bool home = o.Id == Stadium.Home;
                 float right = row.xMax - S.RowPadL;
                 ushort id = o.Id;
+                // 홈구장 줄은 '카메라 이동'만, 다른 경기장 줄은 '홈팀 정하기'(확인 뒤 Stadium.Pick) · '카메라 이동'(시안은 '홈팀 정하기' 하나)
                 right -= Button.At(right - Button.Width(null, "카메라 이동", true), row.center.y, null, "카메라 이동", null, Tone.Neutral, null, true, () => Stadium.Focus(id), true, true) + S.RowGap;
+                if (!home) right -= Button.At(right - Button.Width(null, "홈팀 정하기", true), row.center.y, null, "홈팀 정하기", null, Tone.Neutral, null, true, () => Ask(o), true, true) + S.RowGap;
                 string state = home ? Short(s, 0) + " 홈" : "홈팀 없음";
                 float bw = Badge.Pair(0f, 0f, state, Look.PastelFill, Look.PastelInk, false);
                 Badge.Pair(right - bw, row.center.y, state, home ? Look.PastelFill : Look.Pill, home ? Look.PastelInk : Look.BarOff);

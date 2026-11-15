@@ -26,6 +26,30 @@ namespace BaseballLeague.Data
             return null;
         }
 
+        public const string MatchDayName = "OlympicGames.Logic.MatchDay";
+
+        static Func<ushort, bool> attached;
+        static bool attachedLooked;
+
+        /// <summary>올림픽 모드가 붙인 Match Day 경기인지(MatchDay.IsAttached). 모드가 없거나 못 찾으면 false. 처음 부를 때 한 번 찾음.</summary>
+        public static bool IsAttached(ushort eventID)
+        {
+            if (!attachedLooked)
+            {
+                attachedLooked = true;
+                try
+                {
+                    var m = Find()?.Assembly.GetType(MatchDayName, false)?.GetMethod("IsAttached", Any, null, new[] { typeof(ushort) }, null);
+                    if (m != null && m.ReturnType == typeof(bool)) attached = (Func<ushort, bool>)Delegate.CreateDelegate(typeof(Func<ushort, bool>), m);
+                }
+                catch (Exception e)
+                {
+                    Error = "MatchDay.IsAttached 를 못 찾음: " + e.Message;
+                }
+            }
+            return attached != null && attached(eventID);
+        }
+
         /// <summary>runner(Runner 형 · null = 모드 없음)의 Phase 가 Arrival · Hosting 이면 입촌일(ArrivalAt, 없으면 OpenAt - ArrivalDays) · 폐회일(CloseAt)을 넣고 true. 없거나 실패하면 false(둘 다 default).</summary>
         public static bool Read(Type runner, out DateTime from, out DateTime to)
         {

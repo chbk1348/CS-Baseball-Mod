@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
 
         public override string BaseName => "프로야구 리그";
 
@@ -27,6 +27,11 @@ namespace BaseballLeague
         static readonly CSCommonRelease[] Changelog =
         {
             new(Version, "2026-11-15",
+                "[수정] 공용 UI: 한국어 입력(IME) — 조합 중 글자가 자리 글과 겹치거나 다른 칸으로 새던 문제 고침, 켜진 스위치를 테두리로 구분",
+                "[신규] 게임 경기장 정보 창(축구 경기장 · 대학 경기장)이 홈구장이면 팀 이름 · 다음 경기 상대 · 지난 경기 상대(툴팁)를 리그 팀 이름으로, 팀 이름 색을 리그 팀 색으로 보여 줌 · 이름이 칸보다 길면 글자를 줄여 한 줄에 · 게임 이름으로 돌아가면 원래 크기 · 게임 경기 값과 세이브는 그대로 · 다른 경기장 · 리그 없음 · 올림픽 휴식 · 올림픽 모드가 붙인 경기는 게임 이름 그대로",
+                "[신규] 홈구장 화면에서 홈구장 바꾸기: '도시의 경기장' 목록의 다른 경기장 줄 '홈팀 정하기'(카메라 이동도 함께) → 확인하면 다음 홈 경기부터 그 경기장 경기 이벤트를 씀",
+                "[수정] 홈구장은 처음엔 도시에서 처음 찾은 경기장이고, 홈팀 설정 · 홈구장 화면에서 바꿀 수 있음"),
+            new("1.0.0", "2026-11-15",
                 "[신규] 프로젝트 구성: 공용 UI(CSCommonUX)를 서브모듈로 가져옴 · 모드 허브 연결",
                 "[신규] 리그 규칙 KBO(한 리그 10팀 · 팀당 144경기) · NPB(센트럴 6 · 퍼시픽 6 · 팀당 143경기, 교류전 18)",
                 "[신규] 팀 이름 방식 한국형 · 일본형(가상 팀 이름만)",
