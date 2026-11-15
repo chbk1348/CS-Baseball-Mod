@@ -57,6 +57,9 @@ namespace BaseballLeague.UI
         Page page;
         float confirmAt;
 
+        /// <summary>확인 상자가 묻는 홈구장 후보(null = 새 시즌 확인).</summary>
+        Stadium.Venue confirmVenue;
+
         readonly Func<int, string> tabIcon = i => TabIcons[i], tabName = i => Names[i];
 
         const string ConfirmTitle = "새 시즌을 시작할까요?";
@@ -516,8 +519,12 @@ namespace BaseballLeague.UI
 
         // ---- 새 시즌 확인 상자
 
-        void AskNewSeason()
+        void AskNewSeason() => Ask(null);
+
+        /// <summary>확인 상자 열기: venue = 홈구장으로 바꿀 경기장(null = 새 시즌).</summary>
+        void Ask(Stadium.Venue venue)
         {
+            confirmVenue = venue;
             Confirming = true;
             confirmAt = Time.realtimeSinceStartup;
         }
@@ -533,8 +540,17 @@ namespace BaseballLeague.UI
             }
             float k = Modal.Ease((Time.realtimeSinceStartup - confirmAt) / Modal.OpenSeconds);
             Modal.Scrim(r, k, D.RadiusWindow);
-            int hit = Dialog.In(Dialog.Place(r, ConfirmText, k), ConfirmTitle, ConfirmText, "새 시즌 시작", "취소", true, k);
+            var venue = confirmVenue;
+            string text = venue == null ? ConfirmText : $"다음 홈 경기부터 {venue.Name} 경기 이벤트의 승패를 홈 경기 결과로 써요.";
+            int hit = venue == null ? Dialog.In(Dialog.Place(r, text, k), ConfirmTitle, text, "새 시즌 시작", "취소", true, k)
+                : Dialog.In(Dialog.Place(r, text, k), "홈구장을 바꿀까요?", text, "홈구장으로", "취소", false, k);
             if (hit == 0) Confirming = false;
+            else if (hit == 1 && venue != null)
+            {
+                Confirming = false;
+                Stadium.Pick(venue.Id);
+                Toast.Show(venue.Name + "을 홈구장으로 정했어요", ToastKind.Success);
+            }
             else if (hit == 1)
             {
                 Confirming = false;

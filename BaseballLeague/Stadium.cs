@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BaseballLeague.Core;
 using BaseballLeague.Data;
+using ColossalFramework.UI;
 using HarmonyLib;
 
 namespace BaseballLeague
@@ -175,5 +176,118 @@ namespace BaseballLeague
                 Safe.Report("홈 경기 결과 받기", e);
             }
         }
+    }
+
+    /// <summary>
+    /// 경기장 정보 창(게임 FootballPanel · VarsitySportsArenaPanel.RefreshMatchInfo 가 SportMatchAI.GetTeamName · GetOpponentName · GetOpponentColor 로 매 갱신 채움) 뒤에
+    /// 홈구장이면 글 · 색만 리그 이름 · 팀 색으로 덮음(본 스레드 · 게임 이벤트 값 · 세이브는 그대로). 리그 없음 · 올림픽 휴식 · 올림픽 모드가 붙인 경기 · 맞출 홈 경기 없음은 게임 그대로.
+    /// </summary>
+    internal static class MatchPanel
+    {
+        const EventData.Flags Ended = EventData.Flags.Completed | EventData.Flags.Cancelled | EventData.Flags.Expired;
+
+        /// <summary>outline = 그 창의 UpdateOutlineColor(글 색에 맞춘 테두리), prefix = 게임이 팀 이름 칸 앞에 붙이는 글, label 색은 Campus 창만 바꿈(축구 창은 게임도 안 바꿈).</summary>
+        /// <summary>칸 폭(게임 값 · 디컴파일): 'A vs B' 이름 칸 = 축구 220 · 대학 213(게임이 줄이는 폭), 팀 이름 줄 = 대학 407. 넘치면 글자를 줄이고 원래 크기의 MinScale 까지.</summary>
+        internal const float FootballNameW = 220f, VarsityNameW = 213f, LabelW = 407f, MinScale = 0.6f;
+
+        /// <summary>칸마다 게임 원래 글자 크기(처음 덮을 때 기억 · 손 뗄 때 되돌림).</summary>
+        static readonly Dictionary<UILabel, float> baseScale = new();
+
+        /// <summary>글이 max 를 넘으면 글자 크기를 칸에 맞게 줄임(말줄임 없음 · 하한 MinScale). 지금 폭 · 크기로 원래 크기 폭을 셈(autoSize 칸) · 바뀔 때만 씀.</summary>
+        static void Fit(UILabel l, float max)
+        {
+            if (!baseScale.TryGetValue(l, out float b)) baseScale[l] = b = l.textScale;
+            float natural = l.textScale > 0f ? l.width * b / l.textScale : l.width;
+            float want = natural > max ? Math.Max(b * MinScale, b * max / natural) : b;
+            if (Math.Abs(l.textScale - want) > 0.001f) l.textScale = want;
+        }
+
+        static void Restore(UILabel l)
+        {
+            if (l != null && baseScale.TryGetValue(l, out float b) && l.textScale != b) l.textScale = b;
+        }
+
+        internal static void Apply(object panel, System.Reflection.MethodInfo outline, ushort building, UILabel label, string prefix, bool colorLabel, float nameW, UILabel one, UILabel two, UIPanel past, UISprite a, UISprite b, UISprite c)
+        {
+            bool mineOn = false, twoOn = false;
+            try
+            {
+                var s = League.Current;
+                if (s == null || building == 0 || building != Stadium.Home || League.OnBreak(SimulationManager.instance.m_currentGameTime.Date)) return;
+                var events = EventManager.instance.m_events.m_buffer;
+                ushort ev = BuildingManager.instance.m_buildings.m_buffer[building].m_eventIndex;
+                if (ev == 0 || !(events[ev].Info?.m_eventAI is SportMatchAI) || Olympic.IsAttached(ev)) return;
+                var data = events[ev];
+                string mine = s.Team(0).Name;
+                var mineColor = Pal.BallTeams[s.ColorOf(0)];
+                label.text = prefix + mine;
+                one.text = mine;
+                mineOn = true;
+                Fit(label, LabelW);
+                Fit(one, nameW);
+                one.textColor = mineColor;
+                if (colorLabel) label.textColor = mineColor;
+                foreach (var sp in new[] { a, b, c }) if (sp != null) sp.color = mineColor;
+                int away = League.EventOpponent(s, data.StartTime, (data.m_flags & Ended) != 0);
+                if (away >= 0)
+                {
+                    two.text = s.Team(away).Name;
+                    two.textColor = Pal.BallTeams[s.ColorOf(away)];
+                    twoOn = true;
+                    Fit(two, nameW);
+                }
+                outline?.Invoke(panel, new object[] { one });
+                outline?.Invoke(panel, new object[] { two });
+                if (colorLabel) outline?.Invoke(panel, new object[] { label });
+                // 지난 경기 줄(게임과 같은 차례: 이 이벤트의 m_nextBuildingEvent 사슬, 지금 경기가 취소면 첫 줄이 지금 경기) 툴팁 = 상대
+                bool cancelled = (data.m_flags & EventData.Flags.Cancelled) != 0;
+                for (int i = 1; i <= 6; i++)
+                {
+                    ushort id = i == 1 && cancelled ? ev : data.m_nextBuildingEvent;
+                    if (id == 0) break;
+                    data = events[id];
+                    var row = past?.Find<UISlicedSprite>("PastMatch " + i);
+                    if (row == null || Olympic.IsAttached(id)) continue;
+                    int o = League.EventOpponent(s, data.StartTime, true);
+                    if (o >= 0) row.tooltip = s.Team(o).Name;
+                }
+            }
+            catch (Exception e)
+            {
+                Safe.Report("경기장 정보 창 팀 이름", e);
+            }
+            finally
+            {
+                // 게임 이름으로 돌아가면 게임 글자 크기로
+                if (!mineOn)
+                {
+                    Restore(label);
+                    Restore(one);
+                }
+                if (!twoOn) Restore(two);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(FootballPanel), "RefreshMatchInfo")]
+    [CSCommonOptionalPatch]
+    internal static class FootballPanelPatch
+    {
+        static readonly System.Reflection.MethodInfo Outline = AccessTools.Method(typeof(FootballPanel), "UpdateOutlineColor");
+
+        static void Postfix(FootballPanel __instance, InstanceID ___m_InstanceID, UILabel ___m_labelTeamName, UILabel ___m_teamName1, UILabel ___m_teamName2, UIPanel ___m_panelPastMatches,
+            UISprite ___m_teamColorIcon, UISprite ___m_teamColorIconNoButton, UISlicedSprite ___m_slicedSpriteTeamColor) =>
+            MatchPanel.Apply(__instance, Outline, ___m_InstanceID.Building, ___m_labelTeamName, " ", false, MatchPanel.FootballNameW, ___m_teamName1, ___m_teamName2, ___m_panelPastMatches, ___m_teamColorIcon, ___m_teamColorIconNoButton, ___m_slicedSpriteTeamColor);
+    }
+
+    [HarmonyPatch(typeof(VarsitySportsArenaPanel), "RefreshMatchInfo")]
+    [CSCommonOptionalPatch]
+    internal static class VarsityPanelPatch
+    {
+        static readonly System.Reflection.MethodInfo Outline = AccessTools.Method(typeof(VarsitySportsArenaPanel), "UpdateOutlineColor");
+
+        static void Postfix(VarsitySportsArenaPanel __instance, InstanceID ___m_InstanceID, UILabel ___m_labelTeamName, UILabel ___m_teamName1, UILabel ___m_teamName2, UIPanel ___m_panelPastMatches,
+            UISprite ___m_homeTeamIcon, UISlicedSprite ___m_slicedSpriteTeamColor) =>
+            MatchPanel.Apply(__instance, Outline, ___m_InstanceID.Building, ___m_labelTeamName, "", true, MatchPanel.VarsityNameW, ___m_teamName1, ___m_teamName2, ___m_panelPastMatches, ___m_homeTeamIcon, ___m_slicedSpriteTeamColor, null);
     }
 }
