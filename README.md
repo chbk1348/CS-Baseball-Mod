@@ -8,8 +8,8 @@
 게임에 이미 있는 경기장 경기 이벤트를 가상 팀 리그의 한 시즌으로 묶고, 일정 · 순위 · 기록 · 포스트시즌까지 이어 갑니다.
 
 ![Cities: Skylines](https://img.shields.io/badge/Cities%3A%20Skylines-1.21-1F6FEB?style=for-the-badge)
-![Version](https://img.shields.io/badge/판-0.1.0%20기획-F2B33D?style=for-the-badge)
-![Status](https://img.shields.io/badge/상태-디자인%20시안-8A4A00?style=for-the-badge)
+![Version](https://img.shields.io/badge/판-1.0.0-3F9A52?style=for-the-badge)
+![Status](https://img.shields.io/badge/상태-게임%20안%20확인%20전-8A4A00?style=for-the-badge)
 
 ![.NET Framework 3.5](https://img.shields.io/badge/.NET%20Framework-3.5-512BD4?style=flat-square&logo=dotnet&logoColor=white)
 ![Harmony 2](https://img.shields.io/badge/Harmony-2.x-7F8894?style=flat-square)
@@ -27,8 +27,8 @@
 | | 기능 | 내용 |
 |:-:|---|---|
 | ⚾ | **리그 · 시즌** | 내 도시 팀 1팀 + 가상 원정 팀으로 리그를 만들고 시즌을 돌림 · 순위 · 경기 차 · 포스트시즌 |
-| 🏠 | **홈 경기** | 도시 경기장의 경기 이벤트(Match Day · Campus)를 홈 경기로 기록 · 결과는 게임이 정하고 모드는 팀 전력으로 승률만 조정 |
-| ✈️ | **원정 경기** | 도시 밖 경기는 모드가 점수를 정함 · 경기장이 없는 도시는 원정만 진행 |
+| 🏠 | **홈 경기** | 도시 경기장의 경기 이벤트(Match Day · Campus)를 홈 경기로 기록 · 승패는 게임이 정하고 모드는 팀 전력으로 승률만 조정 · 점수 · 선수 기록은 그 승패에 맞춘 시뮬레이션 |
+| ✈️ | **원정 경기** | 도시 밖 경기는 모드가 타석 단위 시뮬레이션으로 정함 · 경기장이 없는 도시는 원정만 진행 |
 | 📅 | **일정** | 리그 규칙(KBO · NPB)대로 시즌 일정을 만듦 · 우천 취소는 예비일로 다시 잡음 |
 | 🧾 | **경기 상세** | 진행 중인 경기만 열림 · 점수판 · S/B/O · 주자 · 이닝 점수 · 상대 전적 · 문자 중계 |
 | 👥 | **팀 · 선수** | 팀 기록 · 최근 10경기 · 팀 전력 · 타순 · 투수 · 홈팀 이름 · 색 · 홈구장 설정 |
@@ -79,11 +79,12 @@
 | 하는 일 | CS1 API |
 |---|---|
 | 경기장 경기 이벤트 · 결과 | `SportMatchAI` · `EventManager` · `EventData` |
-| 홈 팀 승률 조정 | `m_winProbability` |
+| 홈 팀 승률 조정 | `SportMatchAI.GetWinProbability` · `VarsitySportsMatchAI.GetWinProbability` (0 ~ 100) |
 | 대학 경기장 | `VarsitySportsArenaAI` (Campus) |
 | 게임 날짜 | `SimulationManager.m_currentGameTime` |
 | 경기장 상태 | `Building.m_problems` |
 | 시즌 데이터 저장 | `ISerializableDataExtension` |
+| 올림픽 모드와 함께 쓸 때(선택) | `CS-Olympic-Mod` 의 `OlympicGames.Logic.Runner.Phase` · `ArrivalAt` · `CloseAt` 를 리플렉션으로 하루 한 번 읽어, 대회가 확정되면 선수단 입촌 ~ 폐회 동안 리그를 쉬고 그 기간 경기를 예비일로 옮김 · 모드가 없으면 그대로 |
 
 필요한 DLC: **Match Day**(축구 경기장 · 무료). Campus가 있으면 대학 경기장도 홈구장으로 쓸 수 있습니다.
 
@@ -93,8 +94,12 @@
 
 - [x] 후보 기획 · 단독 모드 확인
 - [x] 디자인 시안 (CSCommonUX 3.0 · 탭 4개 + 설정 + 상세 화면 3개 + 알림 카드)
-- [ ] 프로젝트 구성 · CSCommonUX 서브모듈
-- [ ] 리그 · 일정 생성 (KBO · NPB)
-- [ ] 경기 이벤트 연결 · 승률 조정
-- [ ] 화면 구현
-- [ ] 알림 카드 · 경기 상세 시뮬레이션
+- [x] 프로젝트 구성 · CSCommonUX 서브모듈
+- [x] 리그 · 일정 생성 (KBO · NPB)
+- [x] 경기 이벤트 연결 · 승률 조정
+- [x] 포스트시즌 · 더블헤더 · 우승 이력
+- [x] 화면 구현 (탭 4개 + 설정 · 홈구장 · 홈팀 설정)
+- [x] 선수 명단 · 경기 시뮬레이션(타석 단위 · 결정적) · 박스 스코어 · 선수 시즌 기록
+- [x] 경기 상세(진행 중 경기) · 시즌 리더 · 승률 추이 · MVP · 관중 · 타순 · 투수 · 홈팀 편집
+- [x] 알림 카드(경기 전 · 결과 · 큰 소식 · LIVE 점수판)
+- [ ] 게임 안 확인 · 균형 조정
