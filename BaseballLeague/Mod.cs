@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.2";
+        public const string Version = "1.0.3";
 
         public override string BaseName => "프로야구 리그";
 
@@ -27,6 +27,8 @@ namespace BaseballLeague
         static readonly CSCommonRelease[] Changelog =
         {
             new(Version, "2026-11-15",
+                "[변경] 경기 상세: 진행 중인 경기만이 아니라 지난 경기 · 앞으로 경기도 열림 — 일정 탭 달력 칸 · 오늘 리그 경기(경기 전 · 경기 끝 · 우천 취소)를 누르면 열리고, 위 줄은 그날 경기로 바뀜"),
+            new("1.0.2", "2026-11-15",
                 "[신규] 야구장 소리: 홈구장에서 리그 홈 경기가 열리는 동안 축구 경기 소리 대신 관중 웅성거림 · 타격음 뒤 함성 · 박수 · 응원 북 리듬(코드 합성, 곡 없음) · 경기 전후 · 리그와 상관없는 경기 · 올림픽 휴식은 원래 소리 · 모드 설정 '야구장 소리' 스위치"),
             new("1.0.1", "2026-11-15",
                 "[수정] 공용 UI: 한국어 입력(IME) — 조합 중 글자가 자리 글과 겹치거나 다른 칸으로 새던 문제 고침, 켜진 스위치를 테두리로 구분",

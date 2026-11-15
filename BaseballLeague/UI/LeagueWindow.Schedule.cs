@@ -51,9 +51,9 @@ namespace BaseballLeague.UI
             Button.At(b.x, b.y + tileH + S.HeadGap + Button.H * 0.5f, null, "오늘로 가기", null, Tone.Primary, null, true, () => calMonth = new DateTime(Today.Year, Today.Month, 1));
             float y = h + S.Gap;
 
-            // 오늘 리그 경기: 진행 중인 경기만 눌러 경기 상세(GameLive)
+            // 오늘 리그 경기: 눌러 경기 상세(GameLive)
             var today = TodayIndexes(s);
-            const string liveNote = "진행 중인 경기를 누르면 경기 상세가 열려요. 끝난 경기는 점수만 남아요";
+            const string liveNote = "경기를 누르면 경기 상세가 열려요. 달력 칸을 눌러 지난 경기 · 앞으로 경기도 볼 수 있어요";
             float listH = Mathf.Max(1, today.Count) * (S.RowH + D.Gap) - D.Gap;
             float nh = NoteH(liveNote, w - S.Pad * 2f);
             h = PlateH(listH + S.HeadGap + nh);
@@ -123,11 +123,7 @@ namespace BaseballLeague.UI
                 state = $"경기 끝 {f.Away} : {f.Home}";
             }
             else state = st == Live.State.Rain ? "우천 취소" : "경기 전";
-            if (live)
-            {
-                if (Tile.In(row, false, true, "경기 상세 보기")) OpenLive(index);
-            }
-            else Tile.Frame(row, false, false, false);
+            if (Tile.In(row, false, true, "경기 상세 보기")) OpenLive(index);
             float sw = Badge.Pair(0f, 0f, state, Look.Pill, Look.BarOff, false);
             Badge.Pair(row.xMax - S.RowPadR - sw, row.center.y, state, live ? Look.WarnFill : Look.Pill, live ? Look.WarnInk : Look.BarOff);
             float x = row.x + D.CardRowPad, right = row.xMax - S.RowPadR - sw - S.RowGap;
@@ -222,10 +218,13 @@ namespace BaseballLeague.UI
         void DayCell(Season s, Rect c, DateTime day, bool inMonth, List<Game> list)
         {
             bool today = day == Today, home = list != null && list[0].Home == 0;
+            // 경기 있는 칸은 눌러 경기 상세(지난 · 오늘 · 앞으로 경기 모두), 더블헤더는 첫 경기 → 상세 위 줄에서 바꿈
+            bool hot = list != null && Draw.Hover(c);
+            if (list != null && Draw.Button(c)) OpenLive(s.Games.IndexOf(list[0]));
             if (Draw.Repaint)
             {
                 Draw.Round(c, !inMonth ? Look.Pill : home ? Look.PastelSubFill : S.Plate, D.CalendarRadius);
-                if (today) Draw.RoundOutline(c, Pal.Primary, D.CalendarRadius, D.CalendarRing);
+                if (today || hot) Draw.RoundOutline(c, Pal.Primary, D.CalendarRadius, D.CalendarRing);
                 else if (inMonth) Draw.RoundOutline(c, home ? Look.HeroLine : S.PlateLine, D.CalendarRadius);
             }
             var inner = new Rect(c.x + D.CalendarPad, c.y + D.CalendarPad, c.width - D.CalendarPad * 2f, c.height - D.CalendarPad * 2f);
