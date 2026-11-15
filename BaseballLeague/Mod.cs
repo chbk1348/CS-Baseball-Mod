@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.3";
+        public const string Version = "1.0.4";
 
         public override string BaseName => "프로야구 리그";
 
@@ -27,6 +27,9 @@ namespace BaseballLeague
         static readonly CSCommonRelease[] Changelog =
         {
             new(Version, "2026-11-15",
+                "[수정] 공용 UI: 한국어 입력 — 확정된 한글 글자가 사라져 끝 글자만 남던 문제('유키' → '키') · 다른 모드 창과 키 · 초점이 엉키던 문제 고침",
+                "[신규] 공용 UI: 스크롤 막대를 잡아 끌기 · 막대 길을 눌러 그 자리로 이동 (일정 · 기록 등 판 안 스크롤 칸)"),
+            new("1.0.3", "2026-11-15",
                 "[변경] 경기 상세: 진행 중인 경기만이 아니라 지난 경기 · 앞으로 경기도 열림 — 일정 탭 달력 칸 · 오늘 리그 경기(경기 전 · 경기 끝 · 우천 취소)를 누르면 열리고, 위 줄은 그날 경기로 바뀜"),
             new("1.0.2", "2026-11-15",
                 "[신규] 야구장 소리: 홈구장에서 리그 홈 경기가 열리는 동안 축구 경기 소리 대신 관중 웅성거림 · 타격음 뒤 함성 · 박수 · 응원 북 리듬(코드 합성, 곡 없음) · 경기 전후 · 리그와 상관없는 경기 · 올림픽 휴식은 원래 소리 · 모드 설정 '야구장 소리' 스위치"),
