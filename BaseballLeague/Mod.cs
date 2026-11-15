@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.2";
 
         public override string BaseName => "프로야구 리그";
 
@@ -27,6 +27,8 @@ namespace BaseballLeague
         static readonly CSCommonRelease[] Changelog =
         {
             new(Version, "2026-11-15",
+                "[신규] 야구장 소리: 홈구장에서 리그 홈 경기가 열리는 동안 축구 경기 소리 대신 관중 웅성거림 · 타격음 뒤 함성 · 박수 · 응원 북 리듬(코드 합성, 곡 없음) · 경기 전후 · 리그와 상관없는 경기 · 올림픽 휴식은 원래 소리 · 모드 설정 '야구장 소리' 스위치"),
+            new("1.0.1", "2026-11-15",
                 "[수정] 공용 UI: 한국어 입력(IME) — 조합 중 글자가 자리 글과 겹치거나 다른 칸으로 새던 문제 고침, 켜진 스위치를 테두리로 구분",
                 "[신규] 게임 경기장 정보 창(축구 경기장 · 대학 경기장)이 홈구장이면 팀 이름 · 다음 경기 상대 · 지난 경기 상대(툴팁)를 리그 팀 이름으로, 팀 이름 색을 리그 팀 색으로 보여 줌 · 이름이 칸보다 길면 글자를 줄여 한 줄에 · 게임 이름으로 돌아가면 원래 크기 · 게임 경기 값과 세이브는 그대로 · 다른 경기장 · 리그 없음 · 올림픽 휴식 · 올림픽 모드가 붙인 경기는 게임 이름 그대로",
                 "[신규] 홈구장 화면에서 홈구장 바꾸기: '도시의 경기장' 목록의 다른 경기장 줄 '홈팀 정하기'(카메라 이동도 함께) → 확인하면 다음 홈 경기부터 그 경기장 경기 이벤트를 씀",

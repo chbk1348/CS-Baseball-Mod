@@ -4,7 +4,7 @@ using CSCommonUX.UI;
 
 namespace BaseballLeague.UI
 {
-    /// <summary>인게임 설정 패널(CSCommon): 모드 허브 연결 · 개발용 자체 검사. 리그 규칙 · 시즌은 도시마다 달라 리그 창 설정 탭에서.</summary>
+    /// <summary>인게임 설정 패널(CSCommon): 모드 허브 연결 · 야구장 소리 · 개발용 자체 검사. 리그 규칙 · 시즌은 도시마다 달라 리그 창 설정 탭에서.</summary>
     public sealed class OptionsPanel : CSCommonOptionsPanel
     {
         protected override string LogoIcon => YukiModBoxEntry.Icon;
@@ -16,6 +16,11 @@ namespace BaseballLeague.UI
             main.Section("퀵 버튼", null, Pal.Primary).Toggle("모드 허브 연결", "켜면 모드 허브가 있을 때 이 모드가 허브 목록에 들어가요. 끄거나 허브가 없으면 화면 왼쪽 퀵 버튼으로 리그 창을 열어요.", () => s.HubLinked, v =>
             {
                 s.HubLinked = v;
+                BaseballSetting.Save();
+            });
+            main.Section("소리", null, Pal.Primary).Toggle("야구장 소리", "켜면 홈구장에서 리그 홈 경기가 열리는 동안 축구 소리 대신 관중 · 타격음 · 박수 · 응원 북 소리가 나요.", () => s.BallparkSound, v =>
+            {
+                s.BallparkSound = v;
                 BaseballSetting.Save();
             });
             main.Note("리그 규칙 · 팀 이름 방식 · 새 시즌은 도시를 불러온 뒤 리그 창 설정에서 바꿔요.");
