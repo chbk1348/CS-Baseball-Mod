@@ -16,7 +16,7 @@
 ![CSCommon](https://img.shields.io/badge/UX-CSCommonUX%203.0-2ED4BF?style=flat-square)
 ![Language](https://img.shields.io/badge/언어-한국어-5CC8FF?style=flat-square)
 
-[무엇을 하나요](#-무엇을-하나요) · [리그 규칙](#-리그-규칙) · [화면](#-화면) · [게임에 닿는 곳](#-게임에-닿는-곳) · [진행 상황](#-진행-상황)
+[무엇을 하나요](#-무엇을-하나요) · [리그 규칙](#-리그-규칙) · [화면](#-화면) · [게임에 닿는 곳](#-게임에-닿는-곳) · [빌드](#-빌드) · [진행 상황](#-진행-상황)
 
 </div>
 
@@ -30,9 +30,11 @@
 | 🏠 | **홈 경기** | 도시 경기장의 경기 이벤트(Match Day · Campus)를 홈 경기로 기록 · 승패는 게임이 정하고 모드는 팀 전력으로 승률만 조정 · 점수 · 선수 기록은 그 승패에 맞춘 시뮬레이션 |
 | ✈️ | **원정 경기** | 도시 밖 경기는 모드가 타석 단위 시뮬레이션으로 정함 · 경기장이 없는 도시는 원정만 진행 |
 | 📅 | **일정** | 리그 규칙(KBO · NPB)대로 시즌 일정을 만듦 · 우천 취소는 예비일로 다시 잡음 |
-| 🧾 | **경기 상세** | 진행 중인 경기만 열림 · 점수판 · S/B/O · 주자 · 이닝 점수 · 상대 전적 · 문자 중계 |
+| 🧾 | **경기 상세** | 진행 중인 경기만 열림(시작 시각부터 게임 시간 3시간) · 점수판 · S/B/O · 주자 · 이닝 점수 · 이번 경기 기록 · 상대 전적 · 문자 중계 |
+| 🏟️ | **관중** | 홈구장 경기는 게임이 센 방문객, 나머지는 자리 · 순위 · 상대 · 요일로 추정 · 홈 경기 관중 · 평균 · 최다 · 만원 · 예상 관중 |
 | 👥 | **팀 · 선수** | 팀 기록 · 최근 10경기 · 팀 전력 · 타순 · 투수 · 홈팀 이름 · 색 · 홈구장 설정 |
-| 🏆 | **기록** | 시즌 리더 · 승률 추이 · 포스트시즌 경쟁 · 우승 이력 |
+| 🏆 | **기록** | 선수 시즌 기록(타율 · 홈런 · 타점 · 평균자책 · 승 · 세이브 · 탈삼진) · 시즌 리더 · 승률 추이 · 시즌 MVP · 포스트시즌 경쟁 · 우승 이력 |
+| 🧭 | **창 열기** | 모드 허브(Yuki Mod Box)가 있으면 허브 목록에서 열고, 허브가 없거나 설정에서 '모드 허브 연결'을 끄면 화면 왼쪽 퀵 버튼으로 엶(끌어서 옮기기 · 자리 기억) |
 | 🔔 | **알림** | Chirper 대신 모드 알림 카드 — 경기 전 · 경기 결과 · 큰 소식(진출 · 우승 · MVP) · LIVE 점수판 |
 
 실제 구단 이름 · 로고 · 닉네임은 쓰지 않습니다. 팀 이름은 **한국형**(가상 모기업 + 닉네임) · **일본형** 중에서 고릅니다.
@@ -74,19 +76,35 @@
 
 ## 🔌 게임에 닿는 곳
 
-이름은 게임 어셈블리(`Assembly-CSharp.dll`)에서 확인했고, 시그니처는 구현할 때 디컴파일로 대조합니다.
+패치 대상은 게임 어셈블리(`Assembly-CSharp.dll`)에서 확인한 이름이고, Harmony 패치는 홈구장 경기에만 값을 바꿉니다.
 
 | 하는 일 | CS1 API |
 |---|---|
-| 경기장 경기 이벤트 · 결과 | `SportMatchAI` · `EventManager` · `EventData` |
+| 경기장 경기 이벤트 | `EventManager` · `EventData` · `PlayerBuildingAI.m_supportEvents`(`Football` · `VarsitySportsMatch`) 로 홈구장 후보를 찾음 |
+| 경기 결과 | `SportMatchAI.EndEvent` 패치(Prefix · Postfix) — 홈구장 경기가 끝나면 `EventData.Flags` 의 `Success` · `Failure` 와 방문객 수를 읽어 홈 경기 결과로 넣음(대학 경기장은 `VarsitySportsMatchAI` 가 base 로 지남) |
 | 홈 팀 승률 조정 | `SportMatchAI.GetWinProbability` · `VarsitySportsMatchAI.GetWinProbability` (0 ~ 100) |
 | 대학 경기장 | `VarsitySportsArenaAI` (Campus) |
 | 게임 날짜 | `SimulationManager.m_currentGameTime` |
-| 경기장 상태 | `Building.m_problems` |
+| 경기장 상태 · 지금 입장 | `Building.m_problems` · 건물의 `CitizenUnit`(Visit) 방문 시민 수 |
+| 홈구장 카메라 이동 | `ToolsModifierControl.cameraController.SetTarget` |
 | 시즌 데이터 저장 | `ISerializableDataExtension` |
-| 올림픽 모드와 함께 쓸 때(선택) | `CS-Olympic-Mod` 의 `OlympicGames.Logic.Runner.Phase` · `ArrivalAt` · `CloseAt` 를 리플렉션으로 하루 한 번 읽어, 대회가 확정되면 선수단 입촌 ~ 폐회 동안 리그를 쉬고 그 기간 경기를 예비일로 옮김 · 모드가 없으면 그대로 |
+| 올림픽 모드와 함께 쓸 때(선택) | `CS-Olympic-Mod` 의 `OlympicGames.Logic.Runner.Phase` · `ArrivalAt` · `OpenAt` · `CloseAt` 를 리플렉션으로 하루 한 번 읽어, 대회가 확정되면 선수단 입촌 ~ 폐회 동안 리그를 쉬고 그 기간 경기를 예비일로 옮김 · 모드가 없으면 그대로 |
 
 필요한 DLC: **Match Day**(축구 경기장 · 무료). Campus가 있으면 대학 경기장도 홈구장으로 쓸 수 있습니다.
+
+---
+
+## 🔧 빌드
+
+```bash
+git clone --recurse-submodules https://github.com/chbk1348/CS-Baseball-Mod.git
+dotnet build CS-Baseball-Mod/BaseballLeague -c Release
+```
+
+- 공통 UI 는 git 서브모듈 `CSCommonUX/`(정본 저장소 [chbk1348/CSCommonUX](https://github.com/chbk1348/CSCommonUX))입니다. 서브모듈 없이 받았다면 `git submodule update --init` 으로 받습니다.
+- 게임 DLL 경로가 다르면 `-p:ManagedDir="...\Cities_Skylines\Cities_Data\Managed"`
+- 빌드하면 `%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\CS-Baseball-Mod` 로 복사됩니다.
+- Steam 창작마당 **[Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402)** 가 필요합니다.
 
 ---
 
@@ -102,4 +120,6 @@
 - [x] 선수 명단 · 경기 시뮬레이션(타석 단위 · 결정적) · 박스 스코어 · 선수 시즌 기록
 - [x] 경기 상세(진행 중 경기) · 시즌 리더 · 승률 추이 · MVP · 관중 · 타순 · 투수 · 홈팀 편집
 - [x] 알림 카드(경기 전 · 결과 · 큰 소식 · LIVE 점수판)
+- [x] 시즌 저장(형식 판 4 · 옛 세이브 읽기) · 허브 없을 때 퀵 버튼
+- [x] 올림픽 모드 연동(입촌 ~ 폐회 휴식)
 - [ ] 게임 안 확인 · 균형 조정
