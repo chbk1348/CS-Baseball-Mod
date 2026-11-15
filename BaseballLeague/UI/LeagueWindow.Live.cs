@@ -38,17 +38,20 @@ namespace BaseballLeague.UI
         }
 
         /// <summary>오늘 경기(날짜 · 시각 차례)와 그 경기 번호.</summary>
-        List<int> TodayIndexes(Season s)
+        List<int> TodayIndexes(Season s) => DayIndexes(s, Today);
+
+        /// <summary>그날 경기(시각 차례)와 그 경기 번호.</summary>
+        List<int> DayIndexes(Season s, System.DateTime day)
         {
             var list = new List<int>();
             for (int i = 0; i < s.Games.Count; i++)
-                if (s.Games[i].Day == Today) list.Add(i);
+                if (s.Games[i].Day == day) list.Add(i);
             list.Sort((a, b) => Earlier(s.Games[a], s.Games[b]) ? -1 : Earlier(s.Games[b], s.Games[a]) ? 1 : 0);
             return list;
         }
 
-        /// <summary>경기 상세를 연 경기(오늘 경기가 아니면 -1 → 일정으로).</summary>
-        Game LiveGame(Season s) => liveIndex >= 0 && liveIndex < s.Games.Count && s.Games[liveIndex].Day == Today ? s.Games[liveIndex] : null;
+        /// <summary>경기 상세를 연 경기(없는 번호면 null → 일정으로). 지난 · 앞으로 경기도 열림.</summary>
+        Game LiveGame(Season s) => liveIndex >= 0 && liveIndex < s.Games.Count ? s.Games[liveIndex] : null;
 
         void OpenLive(int index)
         {
@@ -102,24 +105,24 @@ namespace BaseballLeague.UI
             var r = Live.Of(s, g, liveIndex, Today);
             if (st != Live.State.Live) t = st == Live.State.Before || st == Live.State.Rain ? 0f : 1f;
             var f = Live.At(r, t);
-            float y = LiveStrip(s, w);
+            float y = LiveStrip(s, g.Day, w);
             y = LiveHero(s, v, g, r, f, st, y, w);
             float col = (w - S.Gap * 2f) / 3f;
             float a = LiveCompare(s, g, r, f, new Rect(0f, y, col, 0f));
             float b = HeadToHead(s, g, new Rect(col + S.Gap, y, col, 0f));
             float c = Feed(s, g, r, f, st, new Rect((col + S.Gap) * 2f, y, col, 0f));
             y = Mathf.Max(a, Mathf.Max(b, c)) + S.Gap;
-            const string note = "일정 탭에서 진행 중인 경기만 열려요. 위 줄에서 오늘 다른 경기로 바꿀 수 있고, 끝난 경기는 일정 칸에 점수만 남아요";
+            const string note = "일정 탭의 오늘 경기 · 달력 칸에서 열려요. 위 줄에서 같은 날 다른 경기로 바꿀 수 있어요";
             float nh = NoteH(note, w - S.RowPadL * 2f);
             Note(new Rect(S.RowPadL, y, w - S.RowPadL * 2f, nh), note);
             return y + nh;
         }
 
-        // ---- 오늘 리그 경기 줄(진행 중만 누름)
+        // ---- 그날 리그 경기 줄(눌러 바꿈)
 
-        float LiveStrip(Season s, float w)
+        float LiveStrip(Season s, System.DateTime day, float w)
         {
-            var today = TodayIndexes(s);
+            var today = DayIndexes(s, day);
             var row = new Rect(0f, 0f, w, D.LiveTileH);
             int n = Mathf.Max(1, today.Count);
             for (int k = 0; k < today.Count; k++)
