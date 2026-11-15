@@ -190,6 +190,7 @@ namespace BaseballLeague
             Stadium.Name = "";
             Stadium.Venues = new Stadium.Venue[0];
             Stadium.Now = null;
+            BallparkAudio.Reset();
             base.OnLevelUnloading();
         }
     }
