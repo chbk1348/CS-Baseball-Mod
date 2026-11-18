@@ -444,6 +444,18 @@ namespace BaseballLeague.Data
             return false;
         }
 
+        /// <summary>day 부터 days 일 안의 안 한 내 도시 팀 홈 경기 날짜들(이른 차례 · 같은 날 하나).</summary>
+        public static List<DateTime> HomeDays(Season s, DateTime day, int days)
+        {
+            day = day.Date;
+            var last = day.AddDays(days);
+            var set = new SortedDictionary<DateTime, bool>();
+            lock (Sync)
+                foreach (var g in s.Games)
+                    if (g.Home == 0 && !g.Played && g.Day >= day && g.Day <= last) set[g.Day.Date] = true;
+            return new List<DateTime>(set.Keys);
+        }
+
         /// <summary>이벤트 시작일 뒤 며칠까지의 홈 경기에 맞추나(그 뒤 경기는 그날 모드가 정함).</summary>
         public const int HomeTargetDays = 1;
 
@@ -969,6 +981,8 @@ namespace BaseballLeague.Data
             s.Games.Add(new Game { Day = d.AddDays(3), Home = 0, Away = 4, HomeRuns = 1, AwayRuns = 0 }); // 3: 끝난 홈
             check(HomeTarget(s, d) == 2, "이벤트: 원정 건너뛰고 가장 이른 홈 경기");
             check(HomeGameSoon(s, d, 1) && !HomeGameSoon(s, d.AddDays(3), 7) && !HomeGameSoon(s, d.AddDays(-5), 3), "홈 경기 곧: 안 한 홈 경기만 · 기간 안만");
+            var hd = HomeDays(s, d, 7);
+            check(hd.Count == 2 && hd[0] == d.AddDays(1) && hd[1] == d.AddDays(2), "홈 경기 날: 원정 · 끝난 경기 빼고 이른 차례");
             check(HomeTarget(s, d.AddDays(2).AddHours(15)) == 1, "이벤트: 같은 날 홈 경기(시각 무시)");
             check(HomeTarget(s, d.AddDays(3)) == -1, "이벤트: 끝난 경기에 맞춤");
             check(HomeTarget(s, d.AddDays(-1)) == -1, "이벤트: 이틀 뒤 홈 경기에 맞춤");

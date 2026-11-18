@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.5";
+        public const string Version = "1.0.6";
 
         public override string BaseName => "프로야구 리그";
 
@@ -27,6 +27,9 @@ namespace BaseballLeague
         static readonly CSCommonRelease[] Changelog =
         {
             new(Version, "2026-11-18",
+                "[변경] 홈구장 경기를 리그 홈 경기 날 18:30 에 열어요 · Real Time 모드면 실제 그날 저녁에 열리고 그 모드의 이벤트 운영 시간 · 준비 시간을 따라요(새벽 시작으로 취소되지 않게)",
+                "[개선] 홈 경기가 끝나면 그 경기 관중(와 있던 관중 / 최대)을 로그에 남겨요 · 시민이 실제로 왔는지 확인용"),
+            new("1.0.5", "2026-11-18",
                 "[수정] 시즌 중 홈구장에서 경기가 열리지 않던 문제 · 게임 경기 간격이 달력으로 몇 달씩 비던 것을 시즌 중엔 쉬지 않고 이어 열어요(비시즌 · 올림픽 휴식은 게임대로)",
                 "[수정] 야구장 환호 · 응원 소리가 안 나던 문제 · 경기 이벤트 시작일이 아니라 오늘 · 내일 홈 경기가 있으면 나요",
                 "[수정] 경기장 경기 결과가 이미 정해진 지난 경기에 맞춰 버려지던 문제 · 끝난 날의 홈 경기에 넣어요",
