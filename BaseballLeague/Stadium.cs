@@ -132,12 +132,28 @@ namespace BaseballLeague
 
         static uint Frames(float hours) => (uint)UnityEngine.Mathf.RoundToInt(hours * SimulationManager.DAYTIME_HOUR_TO_FRAME);
 
-        /// <summary>준비 전 경기를 지금부터 준비 → 경기 → 정리로(정리가 끝나면 게임이 바로 다음 경기를 만듦).</summary>
+        /// <summary>리그 홈 경기 시작 시각(저녁) — Real Time 의 이벤트 운영 시간(평일 · 주말 시작 시각 범위) 안이 되게.</summary>
+        const int GameHour = 18, GameMinute = 30;
+
+        /// <summary>
+        /// 준비 전 경기를 다음 리그 홈 경기 날 18:30 에 맞춤(준비 시간보다 가까우면 그다음 홈 경기) · 끝 = 시작 + 경기 + 정리(정리가 끝나면 게임이 바로 다음 경기를 만듦).
+        /// Real Time 모드면 날짜 하루가 낮밤 하루라 실제 그날 저녁에 열리고, 아니면 날짜만 맞음. 준비 시간은 그 모드가 바꾼 값을 그대로 씀. 맞출 홈 경기가 없으면 그대로.
+        /// </summary>
         internal static void Pull(SportMatchAI ai, ref EventData data)
         {
-            uint start = SimulationManager.instance.m_currentFrameIndex + Frames(ai.m_prepareDuration);
-            if (data.m_startFrame > start) data.m_startFrame = start;
-            data.m_expireFrame = data.m_startFrame + Frames(ai.m_eventDuration + ai.m_disorganizeDuration);
+            var s = League.Current;
+            if (s == null) return;
+            var sim = SimulationManager.instance;
+            uint earliest = sim.m_currentFrameIndex + Frames(ai.m_prepareDuration);
+            foreach (var day in League.HomeDays(s, sim.m_currentGameTime, SoonDays))
+            {
+                uint start = sim.TimeToFrame(day.AddHours(GameHour).AddMinutes(GameMinute));
+                if (start < earliest) continue;
+                if (data.m_startFrame <= start && data.m_startFrame >= earliest && sim.FrameToTime(data.m_startFrame).Date == day) return; // 이미 그날 경기
+                data.m_startFrame = start;
+                data.m_expireFrame = start + Frames(ai.m_eventDuration + ai.m_disorganizeDuration);
+                return;
+            }
         }
 
         /// <summary>홈구장 이벤트면 승률(0 ~ 100)을 결과를 넣을 그 홈 경기(League.HomeTarget) 상대와의 전력 차로 조정.</summary>
@@ -217,6 +233,8 @@ namespace BaseballLeague
             {
                 if (Stadium.Home == 0 || data.m_building != Stadium.Home) return;
                 if ((data.m_flags & (EventData.Flags.Success | EventData.Flags.Failure)) == 0) return;
+                // 실제로 시민이 왔는지 확인용(게임이 센 와 있던 관중 / 최대 관중 · Real Time 이면 그 모드가 시민을 이 경기로 보냄)
+                Log.Info($"홈 경기 끝 · {SimulationManager.instance.FrameToTime(data.m_startFrame):yyyy-MM-dd HH:mm} 시작 · 관중 {__state.Key:#,0} / {__state.Value:#,0} · {((data.m_flags & EventData.Flags.Success) != 0 ? "승" : "패")}");
                 // 이벤트가 달력으로 몇 주라 시작일 경기는 이미 정해졌을 수 있음 → 끝난 오늘 · 내일 홈 경기에
                 League.QueueHomeResult(SimulationManager.instance.m_currentGameTime, (data.m_flags & EventData.Flags.Success) != 0, __state.Key, __state.Value);
             }
