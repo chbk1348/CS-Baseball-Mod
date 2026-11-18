@@ -40,7 +40,8 @@ namespace BaseballLeague
                 ref var e = ref EventManager.instance.m_events.m_buffer[ev];
                 if ((e.m_flags & EventData.Flags.Active) == 0 || !(e.Info?.m_eventAI is SportMatchAI)) return false;
                 if (League.OnBreak(SimulationManager.instance.m_currentGameTime.Date) || Olympic.IsAttached(ev)) return false;
-                hosting = League.HomeTarget(s, e.StartTime) >= 0;
+                // 한 경기 이벤트가 달력으로 몇 주라 시작일이 아니라 오늘 · 내일 홈 경기가 있는지로
+                hosting = League.HomeTarget(s, SimulationManager.instance.m_currentGameTime) >= 0;
             }
             catch (Exception e)
             {

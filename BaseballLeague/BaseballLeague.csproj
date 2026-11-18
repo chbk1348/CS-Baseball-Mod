@@ -5,7 +5,7 @@
     <LangVersion>12</LangVersion>
     <AssemblyName>CS-Baseball-Mod</AssemblyName>
     <RootNamespace>BaseballLeague</RootNamespace>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <Product>프로야구 리그</Product>
     <Authors>chbk1348</Authors>
     <Nullable>disable</Nullable>
