@@ -168,13 +168,15 @@ namespace BaseballLeague
 
         protected override void LoadedActions(LoadMode mode)
         {
-            if (League.Current == null)
-            {
-                var s = League.NewSeason(Rule.KBO, Naming.Korean, SimulationManager.instance.m_currentGameTime);
-                Log.Info($"{(SaveFormat.Unread != null ? BaseballSave.UnreadText + " · 임시 " : "새 ")}시즌 · {s.Rule} · 개막 {s.Start:yyyy-MM-dd} · 경기 {s.Games.Count}");
-            }
             host = new GameObject("BaseballLeague");
             host.AddComponent<LeagueController>();
+            // 본체를 먼저 붙임: 새 시즌 만들기가 던져도 창은 열림(시즌 없음으로)
+            Safe.Run("새 시즌", () =>
+            {
+                if (League.Current != null) return;
+                var s = League.NewSeason(Rule.KBO, Naming.Korean, SimulationManager.instance.m_currentGameTime);
+                Log.Info($"{(SaveFormat.Unread != null ? BaseballSave.UnreadText + " · 임시 " : "새 ")}시즌 · {s.Rule} · 개막 {s.Start:yyyy-MM-dd} · 경기 {s.Games.Count}");
+            });
         }
 
         public override void OnLevelUnloading()

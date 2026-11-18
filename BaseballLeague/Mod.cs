@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.4";
+        public const string Version = "1.0.5";
 
         public override string BaseName => "프로야구 리그";
 
@@ -26,7 +26,12 @@ namespace BaseballLeague
 
         static readonly CSCommonRelease[] Changelog =
         {
-            new(Version, "2026-11-15",
+            new(Version, "2026-11-18",
+                "[수정] 시즌 중 홈구장에서 경기가 열리지 않던 문제 · 게임 경기 간격이 달력으로 몇 달씩 비던 것을 시즌 중엔 쉬지 않고 이어 열어요(비시즌 · 올림픽 휴식은 게임대로)",
+                "[수정] 야구장 환호 · 응원 소리가 안 나던 문제 · 경기 이벤트 시작일이 아니라 오늘 · 내일 홈 경기가 있으면 나요",
+                "[수정] 경기장 경기 결과가 이미 정해진 지난 경기에 맞춰 버려지던 문제 · 끝난 날의 홈 경기에 넣어요",
+                "[수정] 도시를 불러올 때 새 시즌 만들기에서 오류가 나도 창은 열려요 · 올림픽 모드가 붙인 경기 시각은 건드리지 않아요"),
+            new("1.0.4", "2026-11-15",
                 "[수정] 공용 UI: 한국어 입력 — 확정된 한글 글자가 사라져 끝 글자만 남던 문제('유키' → '키') · 다른 모드 창과 키 · 초점이 엉키던 문제 고침",
                 "[신규] 공용 UI: 스크롤 막대를 잡아 끌기 · 막대 길을 눌러 그 자리로 이동 (일정 · 기록 등 판 안 스크롤 칸)"),
             new("1.0.3", "2026-11-15",

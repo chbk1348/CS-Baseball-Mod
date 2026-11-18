@@ -59,6 +59,13 @@ namespace BaseballLeague
                 Now = id == 0 ? null : Read(bm, id);
                 Name = id == 0 ? "" : bm.GetBuildingName(id, InstanceID.Empty) ?? "";
                 Home = id;
+                // 이미 먼 날로 잡힌 준비 전 경기(게임 다음 경기 간격)를 시즌 중이면 당겨 옴
+                ushort ev = id == 0 ? (ushort)0 : bm.m_buildings.m_buffer[id].m_eventIndex;
+                if (ev != 0)
+                {
+                    ref var e = ref EventManager.instance.m_events.m_buffer[ev];
+                    if (e.m_flags == EventData.Flags.Created && e.Info?.m_eventAI is SportMatchAI ai && Continuous(id) && !Olympic.IsAttached(ev)) Pull(ai, ref e); // 올림픽 모드가 붙인 경기 시각은 건드리지 않음
+                }
             }
             catch (Exception e)
             {
@@ -109,6 +116,30 @@ namespace BaseballLeague
             return (b.m_flags & (Building.Flags.Created | Building.Flags.Deleted)) == Building.Flags.Created && b.Info?.m_buildingAI is PlayerBuildingAI ai && (ai.m_supportEvents & Sports) != 0;
         }
 
+        /// <summary>
+        /// 시즌 중(올림픽 휴식 아님 · 7일 안 홈 경기 있음) 홈구장은 경기를 쉬지 않고 엶: 게임 경기 시각 · 다음 경기 간격은 낮밤 시간이라 달력으로는 몇 달씩 비어
+        /// 리그 홈 경기 날에 경기장이 비어 있었음. 비시즌 · 다른 경기장은 게임대로.
+        /// </summary>
+        const int SoonDays = 7;
+
+        internal static bool Continuous(ushort building)
+        {
+            var s = League.Current;
+            if (s == null || building == 0 || building != Home) return false;
+            var today = SimulationManager.instance.m_currentGameTime.Date;
+            return !League.OnBreak(today) && League.HomeGameSoon(s, today, SoonDays);
+        }
+
+        static uint Frames(float hours) => (uint)UnityEngine.Mathf.RoundToInt(hours * SimulationManager.DAYTIME_HOUR_TO_FRAME);
+
+        /// <summary>준비 전 경기를 지금부터 준비 → 경기 → 정리로(정리가 끝나면 게임이 바로 다음 경기를 만듦).</summary>
+        internal static void Pull(SportMatchAI ai, ref EventData data)
+        {
+            uint start = SimulationManager.instance.m_currentFrameIndex + Frames(ai.m_prepareDuration);
+            if (data.m_startFrame > start) data.m_startFrame = start;
+            data.m_expireFrame = data.m_startFrame + Frames(ai.m_eventDuration + ai.m_disorganizeDuration);
+        }
+
         /// <summary>홈구장 이벤트면 승률(0 ~ 100)을 결과를 넣을 그 홈 경기(League.HomeTarget) 상대와의 전력 차로 조정.</summary>
         internal static void AdjustWin(ref EventData data, ref float result)
         {
@@ -119,6 +150,23 @@ namespace BaseballLeague
             catch (Exception e)
             {
                 Safe.Report("홈 경기 승률 조정", e);
+            }
+        }
+    }
+
+    /// <summary>홈구장 경기를 만들 때(대학 경기장도 base 로 지남): 시즌 중이면 쉬지 않고 이어 엶.</summary>
+    [HarmonyPatch(typeof(SportMatchAI), nameof(SportMatchAI.CreateEvent))]
+    internal static class MatchCreatePatch
+    {
+        static void Postfix(SportMatchAI __instance, ref EventData data)
+        {
+            try
+            {
+                if (Stadium.Continuous(data.m_building)) Stadium.Pull(__instance, ref data);
+            }
+            catch (Exception e)
+            {
+                Safe.Report("홈 경기 이어 열기", e);
             }
         }
     }
@@ -169,7 +217,8 @@ namespace BaseballLeague
             {
                 if (Stadium.Home == 0 || data.m_building != Stadium.Home) return;
                 if ((data.m_flags & (EventData.Flags.Success | EventData.Flags.Failure)) == 0) return;
-                League.QueueHomeResult(data.StartTime, (data.m_flags & EventData.Flags.Success) != 0, __state.Key, __state.Value);
+                // 이벤트가 달력으로 몇 주라 시작일 경기는 이미 정해졌을 수 있음 → 끝난 오늘 · 내일 홈 경기에
+                League.QueueHomeResult(SimulationManager.instance.m_currentGameTime, (data.m_flags & EventData.Flags.Success) != 0, __state.Key, __state.Value);
             }
             catch (Exception e)
             {
