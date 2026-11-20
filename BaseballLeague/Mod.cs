@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.6";
+        public const string Version = "1.0.7";
 
         public override string BaseName => "프로야구 리그";
 
@@ -26,7 +26,10 @@ namespace BaseballLeague
 
         static readonly CSCommonRelease[] Changelog =
         {
-            new(Version, "2026-11-18",
+            new(Version, "2026-11-20",
+                "[개선] 공용 화면 부품 CSCommonUX 3.1: 창 · 목록 스크롤이 부드럽게 움직이고, 아이콘 · 그림을 한 틀에 몰아 굽거나 통째로 다시 굽지 않아 화면 끊김이 줄었어요",
+                "[수정] 공용 화면 부품: 게임 설정 화면에 모드 설정이 다시 붙고, 게임 UI 가 사라지는 순간 나던 오류를 막았어요"),
+            new("1.0.6", "2026-11-18",
                 "[변경] 홈구장 경기를 리그 홈 경기 날 18:30 에 열어요 · Real Time 모드면 실제 그날 저녁에 열리고 그 모드의 이벤트 운영 시간 · 준비 시간을 따라요(새벽 시작으로 취소되지 않게)",
                 "[개선] 홈 경기가 끝나면 그 경기 관중(와 있던 관중 / 최대)을 로그에 남겨요 · 시민이 실제로 왔는지 확인용"),
             new("1.0.5", "2026-11-18",
