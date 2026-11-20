@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using BaseballLeague.Core;
-using CSCommonUX.UI;
+using CSCommonUX;
 
 namespace BaseballLeague.UI
 {
