@@ -134,7 +134,7 @@ namespace BaseballLeague.UI
         // ---- 자기 퀵 버튼(허브가 없거나 '모드 허브 연결'을 껐을 때 · 올림픽 · 기상청 퀵 버튼과 같은 방식: 왼쪽 둥근 버튼 · 끌어 옮김 · 자리는 설정 파일에)
 
         /// <summary>자기 퀵 버튼을 그리고 막음: 허브가 맡지 않았거나(허브 없음) 연결을 껐을 때.</summary>
-        public static bool OwnLauncher => !YukiModBoxEntry.HubOwnsLauncher || !BaseballSetting.Current.HubLinked;
+        public static bool OwnLauncher => !ModHubEntry.HubOwnsLauncher || !BaseballSetting.Current.HubLinked;
 
         /// <summary>기본 자리 화면 높이 비율(올림픽 0.53 · 기상청 버튼 아래에 겹치지 않게).</summary>
         const float LauncherTop = 0.62f;
@@ -189,7 +189,7 @@ namespace BaseballLeague.UI
                 else if (r.Contains(m)) Toggle();
                 e.Use();
             }
-            if (Draw.Repaint) Fab.In(r, YukiModBoxEntry.Icon, FabTone.Plain, Visible);
+            if (Draw.Repaint) Fab.In(r, ModHubEntry.Icon, FabTone.Plain, Visible);
             if (!fabDragging && Draw.Hover(r)) Tooltip.Draw(r, "프로야구 리그 · 끌어서 옮기기");
         }
 
