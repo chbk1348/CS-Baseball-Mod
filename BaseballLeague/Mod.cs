@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.8";
+        public const string Version = "1.0.9";
 
         public override string BaseName => "프로야구 리그";
 
@@ -27,6 +27,9 @@ namespace BaseballLeague
         static readonly CSCommonRelease[] Changelog =
         {
             new(Version, "2026-11-24",
+                "[개선] 창을 처음 열 때 끊김을 줄였어요: 아이콘 · 그림 굽기를 여러 프레임에 나눠 하고, 쌓인 글 폭 기억은 넘치면 비워요(정본 CSCommonUX 3.1.1)",
+                "[개선] 창을 그릴 때 쓰지 않는 자동 배치 단계를 건너뛰어 프레임마다 드는 일을 줄였어요"),
+            new("1.0.8", "2026-11-24",
                 "[변경] 성능 평균 줄(60초마다)은 '자세한 로그'를 켰을 때만 남겨요 · 한 번 50ms 넘는 멈춤 줄은 늘 남기고 GC 횟수 · 힙 크기를 같이 적어요(정본 CSCommonUX)",
                 "[변경] 홈 경기 끝(관중 확인) 줄은 자세한 로그를 켰을 때만 남겨요"),
             new("1.0.7", "2026-11-20",
