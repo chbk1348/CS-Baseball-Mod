@@ -234,7 +234,7 @@ namespace BaseballLeague
                 if (Stadium.Home == 0 || data.m_building != Stadium.Home) return;
                 if ((data.m_flags & (EventData.Flags.Success | EventData.Flags.Failure)) == 0) return;
                 // 실제로 시민이 왔는지 확인용(게임이 센 와 있던 관중 / 최대 관중 · Real Time 이면 그 모드가 시민을 이 경기로 보냄)
-                Log.Info($"홈 경기 끝 · {SimulationManager.instance.FrameToTime(data.m_startFrame):yyyy-MM-dd HH:mm} 시작 · 관중 {__state.Key:#,0} / {__state.Value:#,0} · {((data.m_flags & EventData.Flags.Success) != 0 ? "승" : "패")}");
+                CSCommonLog.Detail($"홈 경기 끝 · {SimulationManager.instance.FrameToTime(data.m_startFrame):yyyy-MM-dd HH:mm} 시작 · 관중 {__state.Key:#,0} / {__state.Value:#,0} · {((data.m_flags & EventData.Flags.Success) != 0 ? "승" : "패")}");
                 // 이벤트가 달력으로 몇 주라 시작일 경기는 이미 정해졌을 수 있음 → 끝난 오늘 · 내일 홈 경기에
                 League.QueueHomeResult(SimulationManager.instance.m_currentGameTime, (data.m_flags & EventData.Flags.Success) != 0, __state.Key, __state.Value);
             }

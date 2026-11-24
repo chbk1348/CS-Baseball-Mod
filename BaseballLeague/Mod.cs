@@ -10,7 +10,7 @@ namespace BaseballLeague
     /// </summary>
     public sealed class Mod : CSCommonMod<OptionsPanel, BaseballPatcher>, IUserMod
     {
-        public const string Version = "1.0.7";
+        public const string Version = "1.0.8";
 
         public override string BaseName => "프로야구 리그";
 
@@ -26,7 +26,10 @@ namespace BaseballLeague
 
         static readonly CSCommonRelease[] Changelog =
         {
-            new(Version, "2026-11-20",
+            new(Version, "2026-11-24",
+                "[변경] 성능 평균 줄(60초마다)은 '자세한 로그'를 켰을 때만 남겨요 · 한 번 50ms 넘는 멈춤 줄은 늘 남기고 GC 횟수 · 힙 크기를 같이 적어요(정본 CSCommonUX)",
+                "[변경] 홈 경기 끝(관중 확인) 줄은 자세한 로그를 켰을 때만 남겨요"),
+            new("1.0.7", "2026-11-20",
                 "[개선] 공용 화면 부품 CSCommonUX 3.1: 창 · 목록 스크롤이 부드럽게 움직이고, 아이콘 · 그림을 한 틀에 몰아 굽거나 통째로 다시 굽지 않아 화면 끊김이 줄었어요",
                 "[수정] 공용 화면 부품: 게임 설정 화면에 모드 설정이 다시 붙고, 게임 UI 가 사라지는 순간 나던 오류를 막았어요"),
             new("1.0.6", "2026-11-18",
