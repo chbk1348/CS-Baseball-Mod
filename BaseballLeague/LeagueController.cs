@@ -21,6 +21,7 @@ namespace BaseballLeague
         void Awake()
         {
             Instance = this;
+            useGUILayout = false; // GUILayout · Layout 이벤트를 안 씀 — Layout 패스를 건너뛰어 OnGUI 를 줄임
             esc = EscClose;
             tick = Tick;
             gui = DrawGui;
